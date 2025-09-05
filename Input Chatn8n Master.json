@@ -1,0 +1,234 @@
+{
+  "name": "Input Chatn8n Master",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1bdf7476-de5c-4ee6-a520-ff2738c27705",
+              "leftValue": "={{ $json.files[0] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        -48
+      ],
+      "id": "21509977-8645-4670-80eb-59e3de5e0354",
+      "name": "If",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "LGqCjjPrBqibM5YW",
+          "mode": "list"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        -80
+      ],
+      "name": "Call Sub-VectorStore",
+      "id": "e0211e5f-798c-4cb0-b4fc-e9098b6ee0af",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "hPeO3vimqCjxxCcm",
+          "mode": "list",
+          "cachedResultName": "Sub-MainAgent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sessionId": "={{ $json.message.chat.id }}",
+            "chatInput": "={{ $json.message.text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "chatInput",
+              "displayName": "chatInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -16,
+        192
+      ],
+      "name": "Sub-MainAgent",
+      "id": "c8105254-c18b-4c2a-adc1-a8c983256b92"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        192
+      ],
+      "id": "d45ec060-439f-475d-858b-8edd1838eede",
+      "name": "Telegram Trigger",
+      "webhookId": "1edcd18f-6927-4471-b111-7ca93d9496df",
+      "credentials": {
+        "telegramApi": {
+          "id": "DpXQZlc0aZacEIG4",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        192,
+        192
+      ],
+      "id": "c901cb9a-69f4-465a-89c1-ad45756ed775",
+      "name": "Send a text message",
+      "webhookId": "d3fb7d49-137b-4f86-92b3-55fff5f5bc71",
+      "credentials": {
+        "telegramApi": {
+          "id": "DpXQZlc0aZacEIG4",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Telegram Trigger": [
+      {
+        "json": {
+          "update_id": 931512632,
+          "message": {
+            "message_id": 95,
+            "from": {
+              "id": 5352349524,
+              "is_bot": false,
+              "first_name": "Aries",
+              "last_name": "Setiawan",
+              "username": "aries_alife",
+              "language_code": "en"
+            },
+            "chat": {
+              "id": 5352349524,
+              "first_name": "Aries",
+              "last_name": "Setiawan",
+              "username": "aries_alife",
+              "type": "private"
+            },
+            "date": 1757051202,
+            "text": "what companies exist in telecommunications industry in Indonesia?"
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Call Sub-VectorStore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sub-MainAgent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sub-MainAgent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "62de1733-c1ea-48c2-bc65-ab288e984896",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1104b9addaac4519857b0ee6f9bef65eb1e4c774253b6bea6b1c3d932adbe872"
+  },
+  "id": "12iUW1fOt8JgQCqE",
+  "tags": []
+}
