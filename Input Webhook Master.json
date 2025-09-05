@@ -1,0 +1,196 @@
+{
+  "name": "Input Webhook Master",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1bdf7476-de5c-4ee6-a520-ff2738c27705",
+              "leftValue": "={{ $json.files[0] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -208,
+        80
+      ],
+      "id": "6e0281a4-76c3-49ad-b2de-d08b01b3725e",
+      "name": "If",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "LGqCjjPrBqibM5YW",
+          "mode": "list"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        64
+      ],
+      "name": "Call Sub-VectorStore",
+      "id": "74a1fb5b-5803-4f36-92c3-824966460a18",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "hPeO3vimqCjxxCcm",
+          "mode": "list",
+          "cachedResultName": "Sub-MainAgent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chatInput": "={{ $json.body.chatInput }}",
+            "sessionId": "={{ $json.body.session_id }}"
+          },
+          "matchingColumns": [
+            "chatInput"
+          ],
+          "schema": [
+            {
+              "id": "chatInput",
+              "displayName": "chatInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -192,
+        336
+      ],
+      "name": "Sub-MainAgent",
+      "id": "5530af15-3efc-4d0b-981c-c3b7e06d09e1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "n8n_chat_agent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -432,
+        336
+      ],
+      "id": "a3e42a2d-22ab-443a-a8c9-53ba0ee07926",
+      "name": "Webhook",
+      "webhookId": "51b7cb4c-dc3c-4517-90e4-ce4bfb7c391f"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{\n{\n  \"AIResponse\": $json.output\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        64,
+        336
+      ],
+      "id": "d14f1a7e-d401-430e-b35d-5249dd88c8df",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Call Sub-VectorStore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sub-MainAgent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Sub-MainAgent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "edc25df0-bbf5-4153-aa3f-e2aef788948c",
+  "meta": {
+    "instanceId": "1104b9addaac4519857b0ee6f9bef65eb1e4c774253b6bea6b1c3d932adbe872"
+  },
+  "id": "kCwDcvYeagOhke0m",
+  "tags": []
+}
